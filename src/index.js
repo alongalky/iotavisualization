@@ -1,96 +1,130 @@
 const d3 = require('d3');
-
 const svg = d3.select('svg');
 const height = +svg.attr('height');
 
 // Test Data
 const nodes = [
   {
-    id: '1',
+    name: '1',
     time: 0,
+    fx: 50,
+    fy: height/2,
   },
   {
-    id: '2',
+    name: '2',
     time: 1,
-  },
-  {
-    id: '3',
-    time: 3,
-  },
-  {
-    id: '4',
-    time: 3,
   },
 ];
 
 const links = [
   {
-    source: '2',
-    target: '1',
-  },
-  {
-    source: '3',
-    target: '1',
-  },
-  {
-    source: '4',
-    target: '1',
-  },
-  {
-    source: '4',
-    target: '2',
+    source: nodes[1],
+    target: nodes[0],
   },
 ];
 
-const simulation = d3.forceSimulation()
-  .force('repulsion', d3.forceManyBody(-30))
-  .force('pin_y_to_center', d3.forceY().y(d => height / 2).strength(0.1))
-  .force('pin_x_to_time', d3.forceX().x(d => {
-    return 50 + d.time * 30;
-  }).strength(1))
-  .force('link', d3.forceLink().id(d => d.id))
-  .nodes(nodes)
-  .on('tick', ticked);
+const chooseFromFirstN = (arr, n) => arr[Math.floor(Math.random() * n)];
 
-simulation.force('link')
-  .links(links);
+setInterval(() => {
+  if (nodes.length >= 30) return;
 
-const path = svg.append('g')
-  .selectAll('path')
-  .data(links)
-  .enter().append('svg:path')
-  .attr('class', d => 'link')
-  .attr('stroke', 'green')
-  .attr('stroke-width', '3')
-  .attr('marker-end', function(d) {
-    return 'url(#arrowhead)';
+  const name = (nodes.length + 1).toString();
+  const time = nodes.length + Math.random() - 0.5;
+
+  const newNode = {
+    name,
+    time,
+    fx: xFromTime(time),
+    y: height/2,
+  };
+
+  simulation
+    .alpha(1)
+    .restart();
+
+  nodes.push(newNode);
+
+  links.push({
+    source: newNode,
+    target: chooseFromFirstN(nodes, Math.max(1, nodes.length-4)),
+  });
+  links.push({
+    source: newNode,
+    target: chooseFromFirstN(nodes, Math.max(1, nodes.length-4)),
   });
 
-svg.append('svg:defs').selectAll('marker')
-  .data(['arrowhead'])
-  .enter().append('svg:marker')
-  .attr('id', String)
-  .attr('viewBox', '0 -5 10 10')
-  .attr('refX', 10)
-  .attr('refY', 0)
-  .attr('markerWidth', 5)
-  .attr('markerHeight', 3)
-  .attr('orient', 'auto')
-  .append('svg:path')
-  .attr('d', 'M0,-5L10,0L0,5');
+  redraw();
+  setTimeout(() => {
+    ticked();
+  }, 100);
+}, 1000);
 
-let node = svg.selectAll('.node')
-  .data(nodes)
-  .enter().append('g')
-  .attr('class', 'node');
-
-node.append('circle')
-  .attr('r', 5);
-
-node.append('text').text(d => d.id);
-
-function ticked() {
-  path.attr('d', d => `M ${d.source.x} ${d.source.y} `+
-    `L ${d.target.x} ${d.target.y}`);
-  node.attr('transform', d => `translate(${d.x},${d.y})`);
+const ticked = () => {
+  svg.selectAll('path.link')
+    .attr('d', d => {
+      return `M ${d.source.x} ${d.source.y} ` +
+      `L ${d.target.x} ${d.target.y}`;
+    });
+  svg.selectAll('g.node')
+    .attr('transform', d => {
+      return `translate(${d.x},${d.y})`;
+    });
 };
+
+const xFromTime = time => 50 + time * 30;
+
+const simulation = d3.forceSimulation()
+  .force('repulsion', d3.forceManyBody().strength(-30))
+  .force('no_collision', d3.forceCollide().radius(30).strength(1).iterations(20))
+  .force('pin_y_to_center', d3.forceY().y(d => height / 2).strength(-0.1))
+  .force('pin_x_to_time', d3.forceX().x(d => xFromTime(d.time)).strength(1));
+
+// Trying it out:
+simulation.force('link',
+  d3.forceLink().links(links).strength(0.5)); // strength in [0,1]
+
+simulation.on('tick', ticked);
+
+svg.append('defs').selectAll('marker')
+  .data(['arrowhead'])
+  .enter() .append('marker')
+    .attr('id', String)
+    .attr('viewBox', '0 -5 10 10')
+    .attr('refX', 15)
+    .attr('refY', 0)
+    .attr('markerWidth', 5)
+    .attr('markerHeight', 3)
+    .attr('orient', 'auto')
+    .append('path')
+      .attr('d', 'M0,-5L10,0L0,5');
+
+const linksCanvas = svg.append('g');
+const nodesCanvas = svg.append('g');
+
+const redraw = () => {
+  simulation.nodes(nodes);
+
+  const path = linksCanvas
+    .selectAll('path.link')
+    .data(links)
+    .enter().append('path');
+
+  path.attr('class', 'link')
+    .attr('stroke', 'green')
+    .attr('stroke-width', '2')
+    .attr('marker-end', 'url(#arrowhead)');
+
+  const node = nodesCanvas
+    .selectAll('.node')
+    .data(nodes)
+    .enter().append('g');
+
+  node
+    .attr('class', 'node')
+    .append('circle')
+      .attr('r', 5);
+
+  node.append('text').text(d => d.name);
+};
+
+redraw();

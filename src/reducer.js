@@ -1,6 +1,9 @@
-export default function(todos={}, action) {
-  switch (action.type) {
-    default:
-      return todos;
-  };
-}
+import {combineReducers} from 'redux';
+
+const tangleReducer = (state = {}, action) => state;
+
+const appReducer = combineReducers({
+  tangle: tangleReducer,
+});
+
+export default appReducer;

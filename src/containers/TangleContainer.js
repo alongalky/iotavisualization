@@ -1,7 +1,7 @@
-import {Tangle} from '../components/Tangle';
+import Tangle from '../components/Tangle';
 import {connect} from 'react-redux';
 
-const mapStateToProps = (state, ownProps) => state;
+const mapStateToProps = (state, ownProps) => ({});
 const mapDispatchToProps = (dispatch, ownProps) => ({});
 
 const TangleContainer = connect(

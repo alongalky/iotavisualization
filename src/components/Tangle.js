@@ -1,138 +1,117 @@
 import React from 'react';
+import * as d3 from 'd3';
 
-let svg;
+const width = 800;
+const height = 500;
+const xFromTime = time => 50 + time * 30;
+const nodeRadius = 15;
 
-export const Tangle = props => (
-  <div>
-    <h1>Tangle!</h1>
-    {svgReactElement}
-  </div>
-);
-
-const d3 = require('d3');
-const svgReactElement = <svg ref={element => svg = d3.select(element)}></svg>;
-const height = +svg.attr('height');
-
-// Test Data
-const nodes = [
+const fakeNodes = [
   {
-    name: '1',
+    name: '0',
     time: 0,
-    fx: 50,
+    fx: xFromTime(0),
     fy: height/2,
   },
   {
-    name: '2',
-    time: 1,
+    name: '1',
+    time: 2,
+    x: 200,
+    y: 200,
   },
 ];
-
-const links = [
+const fakeLinks = [
   {
-    source: nodes[1],
-    target: nodes[0],
+    source: '1',
+    target: '0',
+    // source: fakeNodes[0],
+    // target: fakeNodes[1],
   },
 ];
 
-const chooseFromFirstN = (arr, n) => arr[Math.floor(Math.random() * n)];
+class Tangle extends React.Component {
+  constructor(props) {
+    super();
+    this.state = {
+      nodes: fakeNodes,
+      links: fakeLinks,
+    };
 
-setInterval(() => {
-  if (nodes.length >= 30) return;
+    this.force = d3.forceSimulation(this.state.nodes)
+      .force('attraction', d3.forceManyBody().strength(-30))
+      .force('no_collision', d3.forceCollide().radius(30).strength(1).iterations(20))
+      .force('pin_y_to_center', d3.forceY().y(d => height / 2).strength(0.01))
+      .force('pin_x_to_time', d3.forceX().x(d => xFromTime(d.time)).strength(1))
+      .force('link', d3.forceLink().links(this.state.links).strength(0.5).distance(20)); // strength in [0,1]
 
-  const name = (nodes.length + 1).toString();
-  const time = nodes.length + Math.random() - 0.5;
-
-  const newNode = {
-    name,
-    time,
-    fx: xFromTime(time),
-    y: height/2,
-  };
-
-  simulation
-    .alpha(1)
-    .restart();
-
-  nodes.push(newNode);
-
-  links.push({
-    source: newNode,
-    target: chooseFromFirstN(nodes, Math.max(1, nodes.length-4)),
-  });
-  links.push({
-    source: newNode,
-    target: chooseFromFirstN(nodes, Math.max(1, nodes.length-4)),
-  });
-  redraw();
-}, 1000);
-
-const ticked = () => {
-  svg.selectAll('path.link')
-    .attr('d', d => {
-      return `M ${d.source.x} ${d.source.y} ` +
-      `L ${d.target.x} ${d.target.y}`;
+    this.force.on('tick', () => {
+      this.force.nodes(this.state.nodes);
+      this.setState({
+        links: this.state.links,
+        nodes: this.state.nodes,
+      });
     });
-  svg.selectAll('g.node')
-    .attr('transform', d => {
-      return `translate(${d.x},${d.y})`;
-    });
-};
+  }
+  componentDidMount() {
+    setTimeout(() => {
+      const newNode = {
+        name: '2',
+        time: 4,
+        x: 150, y: 50,
+      };
+      this.setState({
+        links: [...this.state.links, {
+          source: newNode,
+          target: this.state.nodes[0],
+        }],
+        nodes: [...this.state.nodes, newNode],
+      });
+      this.force.alpha(1).restart();
+    }, 1000);
+  }
+  componentWillUnmount() {
+    this.force.stop();
+  }
+  render() {
+    return (
+      <svg width={width} height={height}>
+        <defs>
+          <marker
+              id='arrowhead'
+              viewBox='0 -5 10 10'
+              refX={nodeRadius+20}
+              refY={0}
+              markerWidth={5}
+              markerHeight={3}
+              fill='green'
+              orient='auto' >
+            <path d='M0,-5L10,0L0,5'/>
+          </marker>
+        </defs>
+        <g>
+          {this.state.links.map(link =>
+            <path className='link'
+              key={`${link.source.name}->${link.target.name}`}
+              d={ `M ${link.source.x} ${link.source.y} ` +
+              `L ${link.target.x} ${link.target.y}`}
+              stroke='green' strokeWidth='2' markerEnd='url(#arrowhead)'
+              /> )}
+        </g>
+        <g>
+          {this.state.nodes.map(node =>
+            <g transform={`translate(${node.x},${node.y})`} key={node.name}>
+              <circle className='node' stroke='black' strokeWidth='0.1px'
+                fill='white' r={nodeRadius} />
+              <text
+                fill='#666' fontFamily='Helvetica'
+                alignmentBaseline='middle' textAnchor='middle'>
+                {node.name}
+              </text>
+            </g>)}
+        </g>
+      </svg>
+    );
+  }
+}
 
-const xFromTime = time => 50 + time * 30;
-
-const simulation = d3.forceSimulation()
-  .force('repulsion', d3.forceManyBody().strength(-30))
-  .force('no_collision', d3.forceCollide().radius(30).strength(1).iterations(20))
-  .force('pin_y_to_center', d3.forceY().y(d => height / 2).strength(-0.1))
-  .force('pin_x_to_time', d3.forceX().x(d => xFromTime(d.time)).strength(1));
-
-// Trying it out:
-simulation.force('link',
-  d3.forceLink().links(links).strength(0.5)); // strength in [0,1]
-
-simulation.on('tick', ticked);
-
-svg.append('defs').selectAll('marker')
-  .data(['arrowhead'])
-  .enter() .append('marker')
-    .attr('id', String)
-    .attr('viewBox', '0 -5 10 10')
-    .attr('refX', 15)
-    .attr('refY', 0)
-    .attr('markerWidth', 5)
-    .attr('markerHeight', 3)
-    .attr('orient', 'auto')
-    .append('path')
-      .attr('d', 'M0,-5L10,0L0,5');
-
-const linksCanvas = svg.append('g');
-const nodesCanvas = svg.append('g');
-
-const redraw = () => {
-  simulation.nodes(nodes);
-
-  const path = linksCanvas
-    .selectAll('path.link')
-    .data(links)
-    .enter().append('path');
-
-  path.attr('class', 'link')
-    .attr('stroke', 'green')
-    .attr('stroke-width', '2')
-    .attr('marker-end', 'url(#arrowhead)');
-
-  const node = nodesCanvas
-    .selectAll('.node')
-    .data(nodes)
-    .enter().append('g');
-
-  node
-    .attr('class', 'node')
-    .append('circle')
-      .attr('r', 5);
-
-  node.append('text').text(d => d.name);
-};
-
-redraw();
-
+export default Tangle;

@@ -3,9 +3,9 @@ const jStat = require('jStat').jStat;
 const choose = arr => arr[Math.floor(Math.random() * arr.length)];
 
 export const generateTangle = ({nodeCount, lambda = 1.5, h=1}) => {
-  const isTip = (links, node) => {
+  const isTip = (links, node, time) => {
     return !links
-      .filter(link => link.target.time < node.time - h)
+      .filter(link => link.source.time < time)
       .some(link => link.target === node);
   };
 
@@ -32,7 +32,7 @@ export const generateTangle = ({nodeCount, lambda = 1.5, h=1}) => {
   for (let node of nodes) {
     const candidates = nodes
       .filter(candidate => candidate.time < node.time - h)
-      .filter(candidate => isTip(links, candidate));
+      .filter(candidate => isTip(links, candidate, node.time - h));
 
     if (candidates.length > 0) {
       const first = choose(candidates);

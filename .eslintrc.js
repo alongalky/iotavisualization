@@ -1,5 +1,8 @@
 module.exports = {
-  "extends": "google",
+  "extends": [
+    "google",
+    "plugin:react/recommended",
+  ],
   "parser": "babel-eslint",
   "rules": {
       "arrow-parens": 0,

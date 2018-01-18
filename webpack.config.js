@@ -28,7 +28,7 @@ module.exports = {
 
         // Options to configure babel with
         query: {
-          presets: ['es2015'],
+          presets: ['es2015', 'react'],
         },
       },
     ],

@@ -1,7 +1,7 @@
 import React from 'react';
 import * as d3 from 'd3';
 import {generateTangle} from '../shared/generateData';
-import Slider, {Range} from 'rc-slider';
+import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 
 const width = 800;
@@ -46,12 +46,12 @@ class Tangle extends React.Component {
     this.force.stop();
   }
   componentDidMount() {
-    this.startNewTangle(20);
+    this.startNewTangle();
   }
-  startNewTangle(nodeCount) {
+  startNewTangle() {
     const tangle = generateTangle({
       nodeCount: this.state.nodeCount,
-      lamdba: this.state.lambda,
+      lambda: this.state.lambda,
     });
     // Set genesis's y to center
     tangle.nodes[0].fy = height/2;

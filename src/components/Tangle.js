@@ -4,7 +4,7 @@ import {generateTangle} from '../shared/generateData';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 
-const width = 800;
+const width = 700;
 const height = 450;
 const xFromTime = time => 20 + time * 30;
 const nodeRadius = 15;

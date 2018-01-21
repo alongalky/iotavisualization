@@ -10,14 +10,14 @@ const mapStateToProps = (state, ownProps) => ({});
 const mapDispatchToProps = (dispatch, ownProps) => ({});
 
 const xFromTime = time => 20 + time * 30;
-const nodeCountDefault = 20;
 const nodeRadius = 15;
 const width = 700;
 const height = 450;
 const nodeCountMin = 1;
-const nodeCountMax = 50;
-const lambdaMin = 0.2;
-const lambdaMax = 5;
+const nodeCountMax = 300;
+const nodeCountDefault = 20;
+const lambdaMin = 0.1;
+const lambdaMax = 50;
 const lambdaDefault = 1.5;
 
 class TangleContainer extends React.Component {
@@ -91,13 +91,7 @@ class TangleContainer extends React.Component {
             min={nodeCountMin}
             max={nodeCountMax}
             defaultValue={nodeCountDefault}
-            marks={[...Array(nodeCountMax+1).keys()]
-              .reduce((result, item) => {
-                return Object.assign({}, result,
-                  {
-                    [item]: `${item}`,
-                  });
-              })}
+            marks={{[nodeCountMin]: `${nodeCountMin}`, [nodeCountMax]: `${nodeCountMax}`}}
             onChange={nodeCount => {
               this.setState(Object.assign(this.state, {nodeCount}));
               this.startNewTangle();

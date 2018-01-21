@@ -24,6 +24,7 @@
     "eslint": "^4.15.0",
     "eslint-config-google": "^0.9.1",
     "jstat": "^1.7.1",
+    "prop-types": "^15.6.0",
     "rc-slider": "^8.6.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",

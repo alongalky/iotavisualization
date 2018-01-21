@@ -9,7 +9,6 @@ import 'rc-slider/assets/index.css';
 const mapStateToProps = (state, ownProps) => ({});
 const mapDispatchToProps = (dispatch, ownProps) => ({});
 
-const xFromTime = time => 20 + time * 30;
 const nodeRadius = 15;
 const width = 700;
 const height = 450;
@@ -32,10 +31,9 @@ class TangleContainer extends React.Component {
     };
 
     this.force = d3.forceSimulation()
-      .force('attraction', d3.forceManyBody().strength(0.1))
-      .force('no_collision', d3.forceCollide().radius(nodeRadius * 2).strength(0.01).iterations(20))
-      .force('pin_y_to_center', d3.forceY().y(d => height / 2).strength(0.01))
-      .force('pin_x_to_time', d3.forceX().x(d => xFromTime(d.time)).strength(1))
+      .force('no_collision', d3.forceCollide().radius(nodeRadius * 2).strength(0.01).iterations(5))
+      .force('pin_y_to_center', d3.forceY().y(d => height / 2).strength(0.1))
+      .force('pin_x_to_time', d3.forceX().x(d => this.xFromTime(d.time)).strength(1))
       .force('link', d3.forceLink().links(this.state.links).strength(0.5).distance(nodeRadius*3)); // strength in [0,1]
 
     this.force.on('tick', () => {
@@ -60,10 +58,8 @@ class TangleContainer extends React.Component {
     // Set genesis's y to center
     tangle.nodes[0].fy = height/2;
 
-    // Set all nodes' x by time value
     for (let node of tangle.nodes) {
-      node.fx = xFromTime(node.time);
-      node.y = height/2;
+      node.y = height/4 + Math.random()*(height/2),
       node.x = width/2; // required to avoid annoying errors
     }
 
@@ -72,9 +68,27 @@ class TangleContainer extends React.Component {
     this.setState({
       nodes: tangle.nodes,
       links: tangle.links,
+    }, () => {
+      // Set all nodes' x by time value after state has been set
+      for (let node of this.state.nodes) {
+        node.fx = this.xFromTime(node.time);
+      }
     });
 
     this.force.restart().alpha(1);
+  }
+  xFromTime(time) {
+    const margin = 20;
+
+    // Avoid edge cases with 0 or 1 nodes
+    if (this.state.nodes.length < 2) {
+      return margin;
+    }
+
+    const maxTime = this.state.nodes[this.state.nodes.length-1].time;
+
+    // Rescale nodes' x to cover [margin, width-margin]
+    return margin + (width - 2*margin)*(time/maxTime);
   }
   render() {
     return (

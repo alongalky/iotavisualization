@@ -11,7 +11,7 @@ const Axis = ({x, endX, y, startVal, endVal, ticks}) => {
   const tickValues = xScale.ticks(ticks);
 
   return (
-    <g fill='none'>
+    <g fill='none' className='unselectable'>
       <text
         stroke='#000'
         fontSize='15'

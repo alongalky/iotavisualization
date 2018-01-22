@@ -99,7 +99,7 @@ class TangleContainer extends React.Component {
           height={height}
           nodeRadius={nodeRadius}
         />
-        <div style={{width: width*0.8, marginLeft: 20}}>
+        <div style={{width: width*0.8, marginLeft: 20, marginTop: 30}}>
           <center>Number of transactions</center>
           <Slider
             min={nodeCountMin}

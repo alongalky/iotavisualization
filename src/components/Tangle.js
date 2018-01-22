@@ -89,13 +89,18 @@ const Tangle = props =>
       </g>
       <g>
         {props.nodes.map(node =>
-          <g transform={`translate(${node.x},${node.y})`} key={node.name}>
+          <g transform={`translate(${node.x},${node.y})`} key={node.name}
+            className={`${props.approvedNodes.has(node) ? 'approved' : ''}`}>
             <circle className='node' stroke='black' strokeWidth='0.1px'
-              fill='white' r={props.nodeRadius} />
+              fill='white' r={props.nodeRadius} name={node.name}
+              onMouseEnter={props.mouseEntersNodeHandler}
+              onMouseLeave={props.mouseLeavesNodeHandler} >
+            </circle>
             <text
               className='unselectable'
               fill='#666' fontFamily='Helvetica'
-              alignmentBaseline='middle' textAnchor='middle'>
+              alignmentBaseline='middle' textAnchor='middle'
+              pointerEvents='none'>
               {node.name}
             </text>
           </g>)}
@@ -119,6 +124,9 @@ Tangle.propTypes = {
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
   nodeRadius: PropTypes.number.isRequired,
+  mouseEntersNodeHandler: PropTypes.func,
+  mouseLeavesNodeHandler: PropTypes.func,
+  approvedNodes: PropTypes.any,
 };
 
 export default Tangle;

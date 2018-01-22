@@ -6,3 +6,11 @@
   -o-user-select:none;
   user-select:none;
 }
+
+.approved circle {
+  fill: red;
+}
+
+.approved text {
+  fill: white;
+}

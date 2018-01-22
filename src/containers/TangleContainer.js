@@ -5,6 +5,7 @@ import * as d3Force from 'd3-force';
 import {generateTangle} from '../shared/generateData';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
+import {getDescendants} from '../shared/algorithms';
 
 const mapStateToProps = (state, ownProps) => ({});
 const mapDispatchToProps = (dispatch, ownProps) => ({});
@@ -90,6 +91,28 @@ class TangleContainer extends React.Component {
     // Rescale nodes' x to cover [margin, width-margin]
     return margin + (width - 2*margin)*(time/maxTime);
   }
+  mouseEntersNodeHandler(e) {
+    const name = e.target.getAttribute('name');
+    this.setState({
+      hoveredNode: this.state.nodes.find(node => node.name === name),
+    });
+  }
+  mouseLeavesNodeHandler(e) {
+    this.setState({
+      hoveredNode: undefined,
+    });
+  }
+  getApprovedNodes(root) {
+    if (!root) {
+      return new Set();
+    }
+
+    return getDescendants({
+      nodes: this.state.nodes,
+      links: this.state.links,
+      root,
+    });
+  }
   render() {
     return (
       <div>
@@ -98,6 +121,9 @@ class TangleContainer extends React.Component {
           width={width}
           height={height}
           nodeRadius={nodeRadius}
+          mouseEntersNodeHandler={this.mouseEntersNodeHandler.bind(this)}
+          mouseLeavesNodeHandler={this.mouseLeavesNodeHandler.bind(this)}
+          approvedNodes={this.getApprovedNodes(this.state.hoveredNode)}
         />
         <div style={{width: width*0.8, marginLeft: 20, marginTop: 30}}>
           <center>Number of transactions</center>

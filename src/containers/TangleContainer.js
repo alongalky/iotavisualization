@@ -1,7 +1,7 @@
 import React from 'react';
 import Tangle from '../components/Tangle';
 import {connect} from 'react-redux';
-import * as d3 from 'd3';
+import * as d3Force from 'd3-force';
 import {generateTangle} from '../shared/generateData';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
@@ -30,11 +30,11 @@ class TangleContainer extends React.Component {
       lambda: lambdaDefault,
     };
 
-    this.force = d3.forceSimulation()
-      .force('no_collision', d3.forceCollide().radius(nodeRadius * 2).strength(0.01).iterations(5))
-      .force('pin_y_to_center', d3.forceY().y(d => height / 2).strength(0.1))
-      .force('pin_x_to_time', d3.forceX().x(d => this.xFromTime(d.time)).strength(1))
-      .force('link', d3.forceLink().links(this.state.links).strength(0.5).distance(nodeRadius*3)); // strength in [0,1]
+    this.force = d3Force.forceSimulation()
+      .force('no_collision', d3Force.forceCollide().radius(nodeRadius * 2).strength(0.01).iterations(15))
+      .force('pin_y_to_center', d3Force.forceY().y(d => height / 2).strength(0.1))
+      .force('pin_x_to_time', d3Force.forceX().x(d => this.xFromTime(d.time)).strength(1))
+      .force('link', d3Force.forceLink().links(this.state.links).strength(0.5).distance(nodeRadius*3)); // strength in [0,1]
 
     this.force.on('tick', () => {
       this.force.nodes(this.state.nodes);

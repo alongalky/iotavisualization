@@ -39,6 +39,12 @@ class TangleContainer extends React.Component {
 
     this.force.on('tick', () => {
       this.force.nodes(this.state.nodes);
+
+      // restrict nodes to window area
+      for (let node of this.state.nodes) {
+        node.y = Math.max(nodeRadius, Math.min(height - nodeRadius, node.y));
+      }
+
       this.setState({
         links: this.state.links,
         nodes: this.state.nodes,

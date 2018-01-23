@@ -1,4 +1,4 @@
-import {getDescendants} from '../../src/shared/algorithms';
+import {getDescendants, getTips} from '../../src/shared/algorithms';
 
 // convert links from names to pointers
 const graphify = ({nodes, links}) => {
@@ -55,6 +55,50 @@ describe('Algorithms', () => {
       expect(descendants.size).toEqual(2);
       expect(descendants.has(nodes[3])).toBeTruthy();
       expect(descendants.has(nodes[4])).toBeTruthy();
+    });
+  });
+  describe('getTips', () => {
+    it('returns nothing for empty graph', () => {
+      const nodes = [];
+      const links = [];
+
+      const tips = getTips({nodes, links});
+
+      expect(tips.size).toEqual(0);
+    });
+    it('returns tip for singleton', () => {
+      const nodes = initNodes(1);
+      const links = [];
+
+      const tips = getTips({nodes, links});
+
+      expect(tips.size).toEqual(1);
+    });
+    it('returns nothing for 2-clique', () => {
+      const nodes = initNodes(2);
+      const links = [
+        {source: 0, target: 1},
+        {source: 1, target: 0},
+      ];
+      graphify({nodes, links});
+
+      const tips = getTips({nodes, links});
+
+      expect(tips.size).toEqual(0);
+    });
+    it('returns 2 tips for 3 node graph', () => {
+      const nodes = initNodes(3);
+      const links = [
+        {source: 1, target: 0},
+        {source: 2, target: 0},
+      ];
+      graphify({nodes, links});
+
+      const tips = getTips({nodes, links});
+
+      expect(tips.size).toEqual(2);
+      expect(tips.has(nodes[1])).toBeTruthy();
+      expect(tips.has(nodes[2])).toBeTruthy();
     });
   });
 });

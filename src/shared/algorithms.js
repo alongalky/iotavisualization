@@ -16,3 +16,10 @@ export const getDescendants = ({nodes, links, root}) => {
 
   return visited;
 };
+
+export const getTips = ({nodes, links}) => {
+  const tips = nodes.filter(node =>
+    !links.some(link => link.target === node));
+
+  return new Set(tips);
+};

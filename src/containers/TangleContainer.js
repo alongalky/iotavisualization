@@ -5,7 +5,7 @@ import * as d3Force from 'd3-force';
 import {generateTangle} from '../shared/generateData';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
-import {getDescendants} from '../shared/algorithms';
+import {getDescendants, getTips} from '../shared/algorithms';
 
 const mapStateToProps = (state, ownProps) => ({});
 const mapDispatchToProps = (dispatch, ownProps) => ({});
@@ -124,6 +124,10 @@ class TangleContainer extends React.Component {
           mouseEntersNodeHandler={this.mouseEntersNodeHandler.bind(this)}
           mouseLeavesNodeHandler={this.mouseLeavesNodeHandler.bind(this)}
           approvedNodes={this.getApprovedNodes(this.state.hoveredNode)}
+          tips={getTips({
+            nodes: this.state.nodes,
+            links: this.state.links,
+          })}
         />
         <div style={{width: width*0.8, marginLeft: 20, marginTop: 30}}>
           <center>Number of transactions</center>

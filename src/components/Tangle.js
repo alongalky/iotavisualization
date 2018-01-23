@@ -90,7 +90,9 @@ const Tangle = props =>
       <g>
         {props.nodes.map(node =>
           <g transform={`translate(${node.x},${node.y})`} key={node.name}
-            className={`${props.approvedNodes.has(node) ? 'approved' : ''}`}>
+            className={`
+               ${props.approvedNodes.has(node) ? 'approved' : ''}` +
+              `${props.tips.has(node) ? ' tip' : ''}`}>
             <circle className='node' stroke='black' strokeWidth='0.1px'
               fill='white' r={props.nodeRadius} name={node.name}
               onMouseEnter={props.mouseEntersNodeHandler}

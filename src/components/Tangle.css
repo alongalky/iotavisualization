@@ -14,3 +14,11 @@
 .approved text {
   fill: white;
 }
+
+.tip circle {
+  fill: lightgray;
+}
+
+.tip text {
+  fill: black;
+}

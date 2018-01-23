@@ -15,6 +15,14 @@
   fill: white;
 }
 
+path.links  {
+  stroke: green;
+}
+
+path.links.approved {
+  stroke: red;
+}
+
 .tip circle {
   fill: lightgray;
 }

@@ -1,20 +1,22 @@
 export const getDescendants = ({nodes, links, root}) => {
   const stack = [root];
-  const visited = new Set();
+  const visitedNodes = new Set();
+  const visitedLinks = new Set();
 
   while (stack.length > 0) {
     const current = stack.pop();
 
     const outGoingEdges = links.filter(l => l.source === current);
-    for (let edge of outGoingEdges) {
-      if (!visited.has(edge.target)) {
-        stack.push(edge.target);
-        visited.add(edge.target);
+    for (let link of outGoingEdges) {
+      visitedLinks.add(link);
+      if (!visitedNodes.has(link.target)) {
+        stack.push(link.target);
+        visitedNodes.add(link.target);
       }
     }
   }
 
-  return visited;
+  return {nodes: visitedNodes, links: visitedLinks};
 };
 
 export const getTips = ({nodes, links}) => {

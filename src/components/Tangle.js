@@ -60,32 +60,41 @@ Axis.propTypes = {
   startVal: PropTypes.number.isRequired,
   endVal: PropTypes.number.isRequired,
   ticks: PropTypes.number.isRequired,
-  showLabels: PropTypes.bool.isRequired,
+};
+
+const Marker = ({color, id, nodeRadius}) =>
+  <marker
+    id={id}
+    viewBox='0 -5 10 10'
+    refX={nodeRadius+20}
+    refY={0}
+    markerWidth={5}
+    markerHeight={3}
+    fill={color}
+    orient='auto' >
+    <path d='M0,-5L10,0L0,5'/>
+  </marker>;
+
+Marker.propTypes = {
+  color: PropTypes.string.isRequired,
+  id: PropTypes.string.isRequired,
+  nodeRadius: PropTypes.number.isRequired,
 };
 
 const Tangle = props =>
   <div>
     <svg width={props.width} height={props.height}>
       <defs>
-        <marker
-          id='arrowhead'
-          viewBox='0 -5 10 10'
-          refX={props.nodeRadius+20}
-          refY={0}
-          markerWidth={5}
-          markerHeight={3}
-          fill='green'
-          orient='auto' >
-          <path d='M0,-5L10,0L0,5'/>
-        </marker>
+        <Marker color='green' id='arrowhead' nodeRadius={props.nodeRadius} />
+        <Marker color='red' id='arrowhead-approved' nodeRadius={props.nodeRadius} />
       </defs>
       <g>
         {props.links.map(link =>
-          <path className='link'
+          <path className={`links${props.approvedLinks.has(link) ? ' approved' : ''}`}
             key={`${link.source.name}->${link.target.name}`}
             d={ `M ${link.source.x} ${link.source.y} ` +
               `L ${link.target.x} ${link.target.y}`}
-            stroke='green' strokeWidth='2' markerEnd='url(#arrowhead)'
+            strokeWidth='2' markerEnd={props.approvedLinks.has(link) ? 'url(#arrowhead-approved)' : 'url(#arrowhead)'}
           /> )}
       </g>
       <g>
@@ -130,6 +139,7 @@ Tangle.propTypes = {
   mouseEntersNodeHandler: PropTypes.func,
   mouseLeavesNodeHandler: PropTypes.func,
   approvedNodes: PropTypes.any,
+  approvedLinks: PropTypes.any,
 };
 
 export default Tangle;

@@ -184,7 +184,7 @@ class TangleContainer extends React.Component {
   }
   getApprovedNodes(root) {
     if (!root) {
-      return new Set();
+      return {nodes: new Set(), links: new Set()};
     }
 
     return getDescendants({
@@ -195,6 +195,8 @@ class TangleContainer extends React.Component {
   }
   render() {
     const {width, height} = this.state;
+    const approved = this.getApprovedNodes(this.state.hoveredNode);
+
     return (
       <div>
         <Tangle links={this.state.links} nodes={this.state.nodes}
@@ -204,12 +206,13 @@ class TangleContainer extends React.Component {
           nodeRadius={this.state.nodeRadius}
           mouseEntersNodeHandler={this.mouseEntersNodeHandler.bind(this)}
           mouseLeavesNodeHandler={this.mouseLeavesNodeHandler.bind(this)}
-          approvedNodes={this.getApprovedNodes(this.state.hoveredNode)}
+          approvedNodes={approved.nodes}
+          approvedLinks={approved.links}
           tips={getTips({
             nodes: this.state.nodes,
             links: this.state.links,
           })}
-          showLabels={this.state.nodeRadius > 11}
+          showLabels={this.state.nodeRadius > 11 ? true : false}
         />
         <div style={{width: width*0.8, marginLeft: 20, marginTop: 10}}>
           <center>Number of transactions</center>

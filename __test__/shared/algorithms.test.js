@@ -18,7 +18,8 @@ describe('Algorithms', () => {
 
       const descendants = getDescendants({nodes, links, root: nodes[0]});
 
-      expect(descendants.size).toEqual(0);
+      expect(descendants.nodes.size).toEqual(0);
+      expect(descendants.links.size).toEqual(0);
     });
     it('Returns only parent in two node graph', () => {
       const nodes = initNodes(2);
@@ -27,8 +28,10 @@ describe('Algorithms', () => {
 
       const descendants = getDescendants({nodes, links, root: nodes[0]});
 
-      expect(descendants.size).toEqual(1);
-      expect(descendants.has(nodes[1])).toBeTruthy();
+      expect(descendants.nodes.size).toEqual(1);
+      expect(descendants.nodes.has(nodes[1])).toBeTruthy();
+      expect(descendants.links.size).toEqual(1);
+      expect(descendants.links.has(links[0])).toBeTruthy();
     });
     it('Returns both parents in a three node graph', () => {
       const nodes = initNodes(3);
@@ -37,9 +40,12 @@ describe('Algorithms', () => {
 
       const descendants = getDescendants({nodes, links, root: nodes[0]});
 
-      expect(descendants.size).toEqual(2);
-      expect(descendants.has(nodes[1])).toBeTruthy();
-      expect(descendants.has(nodes[2])).toBeTruthy();
+      expect(descendants.nodes.size).toEqual(2);
+      expect(descendants.nodes.has(nodes[1])).toBeTruthy();
+      expect(descendants.nodes.has(nodes[2])).toBeTruthy();
+      expect(descendants.links.size).toEqual(2);
+      expect(descendants.links.has(links[0])).toBeTruthy();
+      expect(descendants.links.has(links[1])).toBeTruthy();
     });
     it('Returns only descendants in a chain', () => {
       const nodes = initNodes(5);
@@ -52,9 +58,12 @@ describe('Algorithms', () => {
       graphify({nodes, links});
 
       const descendants = getDescendants({nodes, links, root: nodes[2]});
-      expect(descendants.size).toEqual(2);
-      expect(descendants.has(nodes[3])).toBeTruthy();
-      expect(descendants.has(nodes[4])).toBeTruthy();
+      expect(descendants.nodes.size).toEqual(2);
+      expect(descendants.nodes.has(nodes[3])).toBeTruthy();
+      expect(descendants.nodes.has(nodes[4])).toBeTruthy();
+      expect(descendants.links.size).toEqual(2);
+      expect(descendants.links.has(links[2])).toBeTruthy();
+      expect(descendants.links.has(links[3])).toBeTruthy();
     });
   });
   describe('getTips', () => {

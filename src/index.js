@@ -10,20 +10,15 @@ const store = createStore(reducer);
 render(
   <Provider store={store}>
     <div>
-      <div style={{paddingLeft: '30px'}}>
-        <h1>
-          Tangle simulator
-        </h1>
-      </div>
       <div style={{display: 'inline-block'}}>
         <TangleContainer />
       </div>
-      <div style={{display: 'inline-block',
-        verticalAlign: 'top',
-        marginLeft: '20px',
-        width: '250px',
+      <div style={{
+        width: '80%',
+        paddingLeft: '20px',
+        paddingTop: '20px',
         textAlign: 'justify'}}>
-        <h2>Hello!</h2>
+        <h2>Iota Tangle visualization</h2>
         <p>
           This demo shows the tangle structure behind Iota, as described in
           the <a href='https://iota.org/IOTA_Whitepaper.pdf'>white paper</a>.

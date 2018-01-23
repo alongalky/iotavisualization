@@ -60,6 +60,7 @@ Axis.propTypes = {
   startVal: PropTypes.number.isRequired,
   endVal: PropTypes.number.isRequired,
   ticks: PropTypes.number.isRequired,
+  showLabels: PropTypes.bool.isRequired,
 };
 
 const Tangle = props =>
@@ -93,18 +94,18 @@ const Tangle = props =>
             className={`
                ${props.approvedNodes.has(node) ? 'approved' : ''}` +
               `${props.tips.has(node) ? ' tip' : ''}`}>
-            <circle className='node' stroke='black' strokeWidth='0.1px'
+            <circle className='node' stroke='black' strokeWidth='1px'
               fill='white' r={props.nodeRadius} name={node.name}
               onMouseEnter={props.mouseEntersNodeHandler}
               onMouseLeave={props.mouseLeavesNodeHandler} >
             </circle>
-            <text
+            {props.showLabels && <text
               className='unselectable'
               fill='#666' fontFamily='Helvetica'
               alignmentBaseline='middle' textAnchor='middle'
               pointerEvents='none'>
               {node.name}
-            </text>
+            </text>}
           </g>)}
       </g>
       <g>

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Tangle from '../components/Tangle';
 import {connect} from 'react-redux';
 import * as d3Force from 'd3-force';
+import {scaleLinear} from 'd3-scale';
 import {generateTangle} from '../shared/generateData';
 import Slider from 'rc-slider';
 import Tooltip from 'rc-tooltip';
@@ -13,7 +14,24 @@ import {getDescendants, getTips} from '../shared/algorithms';
 const mapStateToProps = (state, ownProps) => ({});
 const mapDispatchToProps = (dispatch, ownProps) => ({});
 
-const nodeRadius = 15;
+const nodeRadiusMax = 18;
+const nodeRadiusMin = 8;
+const getNodeRadius = nodeCount => {
+  const smallNodeCount = 20;
+  const largeNodeCount = 100;
+
+  if (nodeCount < smallNodeCount) {
+    return nodeRadiusMax;
+  }
+  if (nodeCount > largeNodeCount) {
+    return nodeRadiusMin;
+  }
+  const scale = scaleLinear().domain([smallNodeCount, largeNodeCount]);
+  scale.range([nodeRadiusMax, nodeRadiusMin]);
+
+  return scale(nodeCount);
+};
+
 const leftMargin = 20;
 const rightMargin = 20;
 const bottomMargin = 200;
@@ -58,17 +76,19 @@ class TangleContainer extends React.Component {
       lambda: lambdaDefault,
       width: 300, // default values
       height: 300,
+      nodeRadius: getNodeRadius(nodeCountDefault),
     };
     this.updateWindowDimensions = this.updateWindowDimensions.bind(this);
 
     this.force = d3Force.forceSimulation();
+    this.force.alphaDecay(0.1);
 
     this.force.on('tick', () => {
       this.force.nodes(this.state.nodes);
 
       // restrict nodes to window area
       for (let node of this.state.nodes) {
-        node.y = Math.max(nodeRadius, Math.min(this.state.height - nodeRadius, node.y));
+        node.y = Math.max(this.state.nodeRadius, Math.min(this.state.height - this.state.nodeRadius, node.y));
       }
 
       this.setState({
@@ -93,18 +113,20 @@ class TangleContainer extends React.Component {
     }, () => {
       this.recalculateFixedPositions();
       this.force
-        .force('no_collision', d3Force.forceCollide().radius(nodeRadius * 2).strength(0.01).iterations(15))
+        .force('no_collision', d3Force.forceCollide().radius(this.state.nodeRadius * 2).strength(0.01).iterations(15))
         .force('pin_y_to_center', d3Force.forceY().y(d => this.state.height / 2).strength(0.1))
         .force('pin_x_to_time', d3Force.forceX().x(d => this.xFromTime(d.time)).strength(1))
-        .force('link', d3Force.forceLink().links(this.state.links).strength(0.5).distance(nodeRadius*3)); // strength in [0,1]
+        .force('link', d3Force.forceLink().links(this.state.links).strength(0.5).distance(this.state.nodeRadius*3)); // strength in [0,1]
 
       this.force.restart().alpha(1);
     });
   }
   startNewTangle() {
+    const nodeRadius = getNodeRadius(this.state.nodeCount);
     const tangle = generateTangle({
       nodeCount: this.state.nodeCount,
       lambda: this.state.lambda,
+      nodeRadius,
     });
 
     const {width, height} = this.state;
@@ -119,6 +141,7 @@ class TangleContainer extends React.Component {
     this.setState({
       nodes: tangle.nodes,
       links: tangle.links,
+      nodeRadius,
     }, () => {
       // Set all nodes' x by time value after state has been set
       this.recalculateFixedPositions();
@@ -178,7 +201,7 @@ class TangleContainer extends React.Component {
           nodeCount={6}
           width={width}
           height={height}
-          nodeRadius={nodeRadius}
+          nodeRadius={this.state.nodeRadius}
           mouseEntersNodeHandler={this.mouseEntersNodeHandler.bind(this)}
           mouseLeavesNodeHandler={this.mouseLeavesNodeHandler.bind(this)}
           approvedNodes={this.getApprovedNodes(this.state.hoveredNode)}
@@ -186,6 +209,7 @@ class TangleContainer extends React.Component {
             nodes: this.state.nodes,
             links: this.state.links,
           })}
+          showLabels={this.state.nodeRadius > 11}
         />
         <div style={{width: width*0.8, marginLeft: 20, marginTop: 10}}>
           <center>Number of transactions</center>

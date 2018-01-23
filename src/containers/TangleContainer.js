@@ -1,10 +1,13 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import Tangle from '../components/Tangle';
 import {connect} from 'react-redux';
 import * as d3Force from 'd3-force';
 import {generateTangle} from '../shared/generateData';
 import Slider from 'rc-slider';
+import Tooltip from 'rc-tooltip';
 import 'rc-slider/assets/index.css';
+import 'rc-tooltip/assets/bootstrap.css';
 import {getDescendants, getTips} from '../shared/algorithms';
 
 const mapStateToProps = (state, ownProps) => ({});
@@ -21,6 +24,28 @@ const nodeCountDefault = 20;
 const lambdaMin = 0.1;
 const lambdaMax = 50;
 const lambdaDefault = 1.5;
+
+const Handle = Slider.Handle;
+const sliderHandle = props => {
+  const {value, dragging, index, ...restProps} = props;
+  return (
+    <Tooltip
+      prefixCls="rc-slider-tooltip"
+      overlay={value}
+      visible={dragging}
+      placement="top"
+      key={index}
+    >
+      <Handle value={value} {...restProps} />
+    </Tooltip>
+  );
+};
+
+sliderHandle.propTypes = {
+  value: PropTypes.number.isRequired,
+  dragging: PropTypes.bool.isRequired,
+  index: PropTypes.number.isRequired,
+};
 
 class TangleContainer extends React.Component {
   constructor(props) {
@@ -169,6 +194,7 @@ class TangleContainer extends React.Component {
             max={nodeCountMax}
             defaultValue={nodeCountDefault}
             marks={{[nodeCountMin]: `${nodeCountMin}`, [nodeCountMax]: `${nodeCountMax}`}}
+            handle={sliderHandle}
             onChange={nodeCount => {
               this.setState(Object.assign(this.state, {nodeCount}));
               this.startNewTangle();
@@ -182,6 +208,7 @@ class TangleContainer extends React.Component {
             step={0.2}
             defaultValue={lambdaDefault}
             marks={{[lambdaMin]: `${lambdaMin}`, [lambdaMax]: `${lambdaMax}`}}
+            handle={sliderHandle}
             onChange={lambda => {
               this.setState(Object.assign(this.state, {lambda}));
               this.startNewTangle();

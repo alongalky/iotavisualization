@@ -24,10 +24,7 @@ render(
           the <a href='https://iota.org/IOTA_Whitepaper.pdf'>white paper</a>.
         </p>
         <p>
-          In the tangle, each transaction is a node in
-          a <a href='https://en.wikipedia.org/wiki/Directed_acyclic_graph'>DAG</a>.
-          When joining, a transaction chooses 2 previous transactions to approve. An edge
-          from <i>a</i> to <i>b</i> means that <i>a</i> approves <i>b</i>.
+          The source code can be found on <a href="https://github.com/alongalky/iotavisualization/">github</a>.
         </p>
       </div>
     </div>

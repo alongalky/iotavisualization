@@ -26,11 +26,6 @@ render(
         <p>
           In the tangle, each transaction is a node in
           a <a href='https://en.wikipedia.org/wiki/Directed_acyclic_graph'>DAG</a>.
-          When joining, a transaction chooses 2 previous transactions to approve.
-        </p>
-        <p>
-          In the tangle, each transaction is a node in
-          a <a href='https://en.wikipedia.org/wiki/Directed_acyclic_graph'>DAG</a>.
           When joining, a transaction chooses 2 previous transactions to approve. An edge
           from <i>a</i> to <i>b</i> means that <i>a</i> approves <i>b</i>.
         </p>

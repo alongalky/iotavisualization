@@ -1,14 +1,6 @@
 const jStat = require('jStat').jStat;
 
-const choose = arr => arr[Math.floor(Math.random() * arr.length)];
-
-export const generateTangle = ({nodeCount, lambda = 1.5, h=1}) => {
-  const isTip = (links, node, time) => {
-    return !links
-      .filter(link => link.source.time < time)
-      .some(link => link.target === node);
-  };
-
+export const generateTangle = ({nodeCount, lambda = 1.5, h=1, tipSelectionAlgorithm}) => {
   jStat.exponential.sample(lambda);
   const genesis = {
     name: '0',
@@ -31,16 +23,20 @@ export const generateTangle = ({nodeCount, lambda = 1.5, h=1}) => {
   const links = [];
   for (let node of nodes) {
     const candidates = nodes
-      .filter(candidate => candidate.time < node.time - h)
-      .filter(candidate => isTip(links, candidate, node.time - h));
+      .filter(candidate => candidate.time < node.time - h);
 
-    if (candidates.length > 0) {
-      const first = choose(candidates);
-      const second = choose(candidates);
+    const candidateLinks = links
+      .filter(link => link.source.time < node.time - h);
 
-      links.push({source: node, target: first});
-      if (second.name !== first.name) {
-        links.push({source: node, target: second});
+    const tips = tipSelectionAlgorithm({
+      nodes: candidates,
+      links: candidateLinks,
+    });
+
+    if (tips.length > 0) {
+      links.push({source: node, target: tips[0]});
+      if (tips.length > 1 && tips[0].name !== tips[1].name) {
+        links.push({source: node, target: tips[1]});
       }
     }
   };

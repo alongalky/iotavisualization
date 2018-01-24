@@ -10,6 +10,8 @@ import Tooltip from 'rc-tooltip';
 import 'rc-slider/assets/index.css';
 import 'rc-tooltip/assets/bootstrap.css';
 import {getDescendants, getTips} from '../shared/algorithms';
+import './radio-button.css';
+import {uniformRandom, unWeightedMCMC} from '../shared/tip-selection';
 
 const mapStateToProps = (state, ownProps) => ({});
 const mapDispatchToProps = (dispatch, ownProps) => ({});
@@ -30,6 +32,11 @@ const getNodeRadius = nodeCount => {
   scale.range([nodeRadiusMax, nodeRadiusMin]);
 
   return scale(nodeCount);
+};
+
+const tipSelectionDictionary = {
+  'UR': uniformRandom,
+  'UWRW': unWeightedMCMC,
 };
 
 const leftMargin = 20;
@@ -77,6 +84,7 @@ class TangleContainer extends React.Component {
       width: 300, // default values
       height: 300,
       nodeRadius: getNodeRadius(nodeCountDefault),
+      tipSelectionAlgorithm: 'UR',
     };
     this.updateWindowDimensions = this.updateWindowDimensions.bind(this);
 
@@ -127,6 +135,7 @@ class TangleContainer extends React.Component {
       nodeCount: this.state.nodeCount,
       lambda: this.state.lambda,
       nodeRadius,
+      tipSelectionAlgorithm: tipSelectionDictionary[this.state.tipSelectionAlgorithm],
     });
 
     const {width, height} = this.state;
@@ -193,6 +202,13 @@ class TangleContainer extends React.Component {
       root,
     });
   }
+  handleTipSelectionRadio(event) {
+    this.setState({
+      tipSelectionAlgorithm: event.target.value,
+    }, () => {
+      this.startNewTangle();
+    });
+  }
   render() {
     const {width, height} = this.state;
     const approved = this.getApprovedNodes(this.state.hoveredNode);
@@ -227,7 +243,7 @@ class TangleContainer extends React.Component {
               this.startNewTangle();
             }} />
         </div>
-        <div style={{width: width*0.8, marginLeft: 20, marginTop: 10}}>
+        <div style={{width: width*0.8, marginLeft: 20, marginTop: 10, marginBottom: 30}}>
           <center>Transaction rate (λ)</center>
           <Slider
             min={lambdaMin}
@@ -240,6 +256,24 @@ class TangleContainer extends React.Component {
               this.setState(Object.assign(this.state, {lambda}));
               this.startNewTangle();
             }} />
+        </div>
+        <div>
+          <label className='container'>
+            Uniform Random
+            <input type='radio' name='radio' value='UR'
+              checked={this.state.tipSelectionAlgorithm === 'UR'}
+              onChange={this.handleTipSelectionRadio.bind(this)}
+            />
+            <span className='checkmark'></span>
+          </label>
+          <label className='container'>
+            Unweighted Random Walk
+            <input type='radio' name='radio' value='UWRW'
+              checked={this.state.tipSelectionAlgorithm === 'UWRW'}
+              onChange={this.handleTipSelectionRadio.bind(this)}
+              />
+            <span className='checkmark'></span>
+          </label>
         </div>
       </div>
     );

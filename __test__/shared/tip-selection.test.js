@@ -1,5 +1,5 @@
 import * as tipSelections from '../../src/shared/tip-selection';
-import {uniformRandom, unWeightedMCMC} from '../../src/shared/tip-selection';
+import {uniformRandom, unWeightedMCMC, weightedMCMC} from '../../src/shared/tip-selection';
 
 const initNodes = n => [...Array(n).keys()].map(i => ({name: i}));
 
@@ -57,32 +57,45 @@ describe('Tip selection algorithms', () => {
       });
     });
   });
-  describe('Unweigthed MCMC', () => {
-    it('doesn\'t reach disconnected component', () => {
-      const nodes = initNodes(2);
-      const links = [];
-      graphify({nodes, links});
+  describe('MCMC', () => {
+    describe('Common tests', () => {
+      [{
+        name: 'unWeightedMCMC',
+        algo: unWeightedMCMC,
+      },
+      {
+        name: 'weightedMCMC',
+        algo: weightedMCMC,
+      }].map(algo => {
+        describe(algo.name, () => {
+          it('doesn\'t reach disconnected component', () => {
+            const nodes = initNodes(2);
+            const links = [];
+            graphify({nodes, links});
 
-      const tips = unWeightedMCMC({nodes, links, start: nodes[0]});
+            const tips = algo.algo({nodes, links, start: nodes[0]});
 
-      expect(tips).toHaveLength(2);
-      expect(tips[0]).toEqual(nodes[0]);
-      expect(tips[1]).toEqual(nodes[0]);
-    });
-    it('Stays on genesis branch when given two disconnected components', () => {
-      const nodes = initNodes(5);
-      const links = [
-        {source: 1, target: 0},
-        {source: 2, target: 1},
-        {source: 4, target: 3},
-      ];
-      graphify({nodes, links});
+            expect(tips).toHaveLength(2);
+            expect(tips[0]).toEqual(nodes[0]);
+            expect(tips[1]).toEqual(nodes[0]);
+          });
+          it('Stays on genesis branch when given two disconnected components', () => {
+            const nodes = initNodes(5);
+            const links = [
+              {source: 1, target: 0},
+              {source: 2, target: 1},
+              {source: 4, target: 3},
+            ];
+            graphify({nodes, links});
 
-      const tips = unWeightedMCMC({nodes, links});
+            const tips = algo.algo({nodes, links});
 
-      expect(tips).toHaveLength(2);
-      expect(tips[0]).toEqual(nodes[2]);
-      expect(tips[1]).toEqual(nodes[2]);
+            expect(tips).toHaveLength(2);
+            expect(tips[0]).toEqual(nodes[2]);
+            expect(tips[1]).toEqual(nodes[2]);
+          });
+        });
+      });
     });
   });
 });

@@ -11,7 +11,7 @@ import 'rc-slider/assets/index.css';
 import 'rc-tooltip/assets/bootstrap.css';
 import {getDescendants, getTips} from '../shared/algorithms';
 import './radio-button.css';
-import {uniformRandom, unWeightedMCMC} from '../shared/tip-selection';
+import {uniformRandom, unWeightedMCMC, weightedMCMC} from '../shared/tip-selection';
 
 const mapStateToProps = (state, ownProps) => ({});
 const mapDispatchToProps = (dispatch, ownProps) => ({});
@@ -35,8 +35,18 @@ const getNodeRadius = nodeCount => {
 };
 
 const tipSelectionDictionary = {
-  'UR': uniformRandom,
-  'UWRW': unWeightedMCMC,
+  'UR': {
+    algo: uniformRandom,
+    label: 'Uniform Random',
+  },
+  'UWRW': {
+    algo: unWeightedMCMC,
+    label: 'Unweighted Random Walk',
+  },
+  'WRW': {
+    algo: weightedMCMC,
+    label: 'Weighted Random Walk',
+  },
 };
 
 const leftMargin = 20;
@@ -49,6 +59,9 @@ const nodeCountDefault = 20;
 const lambdaMin = 0.1;
 const lambdaMax = 50;
 const lambdaDefault = 1.5;
+const alphaMin = 0;
+const alphaMax = 5;
+const alphaDefault = 0.5;
 
 const Handle = Slider.Handle;
 const sliderHandle = props => {
@@ -81,6 +94,7 @@ class TangleContainer extends React.Component {
       links: [],
       nodeCount: nodeCountDefault,
       lambda: lambdaDefault,
+      alpha: alphaDefault,
       width: 300, // default values
       height: 300,
       nodeRadius: getNodeRadius(nodeCountDefault),
@@ -134,8 +148,9 @@ class TangleContainer extends React.Component {
     const tangle = generateTangle({
       nodeCount: this.state.nodeCount,
       lambda: this.state.lambda,
+      alpha: this.state.alpha,
       nodeRadius,
-      tipSelectionAlgorithm: tipSelectionDictionary[this.state.tipSelectionAlgorithm],
+      tipSelectionAlgorithm: tipSelectionDictionary[this.state.tipSelectionAlgorithm].algo,
     });
 
     const {width, height} = this.state;
@@ -243,7 +258,7 @@ class TangleContainer extends React.Component {
               this.startNewTangle();
             }} />
         </div>
-        <div style={{width: width*0.8, marginLeft: 20, marginTop: 10, marginBottom: 30}}>
+        <div style={{width: width*0.8, marginLeft: 20, marginTop: 10}}>
           <center>Transaction rate (λ)</center>
           <Slider
             min={lambdaMin}
@@ -257,23 +272,32 @@ class TangleContainer extends React.Component {
               this.startNewTangle();
             }} />
         </div>
+        <div style={{width: width*0.8, marginLeft: 20, marginTop: 10, marginBottom: 30}}>
+          <center>alpha</center>
+          <Slider
+            min={alphaMin}
+            max={alphaMax}
+            step={0.001}
+            defaultValue={alphaDefault}
+            marks={{[alphaMin]: `${alphaMin}`, [alphaMax]: `${alphaMax}`}}
+            handle={sliderHandle}
+            disabled={this.state.tipSelectionAlgorithm !== 'WRW'}
+            onChange={alpha => {
+              this.setState(Object.assign(this.state, {alpha}));
+              this.startNewTangle();
+            }} />
+        </div>
         <div>
-          <label className='container'>
-            Uniform Random
-            <input type='radio' name='radio' value='UR'
-              checked={this.state.tipSelectionAlgorithm === 'UR'}
-              onChange={this.handleTipSelectionRadio.bind(this)}
-            />
-            <span className='checkmark'></span>
-          </label>
-          <label className='container'>
-            Unweighted Random Walk
-            <input type='radio' name='radio' value='UWRW'
-              checked={this.state.tipSelectionAlgorithm === 'UWRW'}
-              onChange={this.handleTipSelectionRadio.bind(this)}
+          {Object.keys(tipSelectionDictionary).map(key =>
+            <label className='container' key={key}>
+              {tipSelectionDictionary[key].label}
+              <input type='radio' name='radio' value={key}
+                checked={this.state.tipSelectionAlgorithm === key}
+                onChange={this.handleTipSelectionRadio.bind(this)}
               />
-            <span className='checkmark'></span>
-          </label>
+              <span className='checkmark'></span>
+            </label>
+          )}
         </div>
       </div>
     );

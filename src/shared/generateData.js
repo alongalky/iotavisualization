@@ -1,6 +1,6 @@
 const jStat = require('jStat').jStat;
 
-export const generateTangle = ({nodeCount, lambda = 1.5, h=1, tipSelectionAlgorithm}) => {
+export const generateTangle = ({nodeCount, lambda = 1.5, h=1, alpha=0.5, tipSelectionAlgorithm}) => {
   jStat.exponential.sample(lambda);
   const genesis = {
     name: '0',
@@ -31,6 +31,7 @@ export const generateTangle = ({nodeCount, lambda = 1.5, h=1, tipSelectionAlgori
     const tips = tipSelectionAlgorithm({
       nodes: candidates,
       links: candidateLinks,
+      alpha,
     });
 
     if (tips.length > 0) {

@@ -49,3 +49,96 @@ export const randomWalk = ({links, start}) => {
 
   return particle;
 };
+
+const weightedChoose = (arr, weights) => {
+  const sum = weights.reduce((sum, w) => sum + w, 0);
+  const rand = Math.random() * sum;
+
+  let cumSum = weights[0];
+  for (let i=1; i < arr.length; i++) {
+    if (rand < cumSum) {
+      return arr[i-1];
+    }
+    cumSum += weights[i];
+  }
+
+  return arr[arr.length-1];
+};
+
+export const weightedRandomWalk = ({nodes, links, start, alpha}) => {
+  let particle = start;
+
+  while (!isTip({links, node: particle})) {
+    const approvers = getApprovers({links, node: particle});
+
+    const cumWeights = approvers.map(node => node.cumWeight);
+
+    // normalize so maximum cumWeight is 0
+    const maxWeight = Math.max(...cumWeights);
+    const normalizedWeights = cumWeights.map(w => w - maxWeight);
+
+    const weights = normalizedWeights.map(w => Math.exp(alpha * w));
+
+    particle = weightedChoose(approvers, weights);
+  }
+
+  return particle;
+};
+
+const getChildrenLists = ({nodes, links}) => {
+  // Initialize an empty list for each node
+  const childrenLists = nodes.reduce((lists, node) =>
+    Object.assign(lists, {[node.name]: []}), {});
+
+  for (let link of links) {
+    childrenLists[link.source.name].push(link.target);
+  }
+
+  return childrenLists;
+};
+
+// DFS-based topological sort
+export const topologicalSort = ({nodes, links}) => {
+  const childrenLists = getChildrenLists({nodes, links});
+  const unvisited = new Set(nodes);
+  const result = [];
+
+  const visit = node => {
+    if (!unvisited.has(node)) {
+      return;
+    }
+
+    for (let child of childrenLists[node.name]) {
+      visit(child);
+    }
+
+    unvisited.delete(node);
+    result.push(node);
+  };
+
+  while (unvisited.size > 0) {
+    const node = unvisited.values().next().value;
+
+    visit(node);
+  }
+
+  result.reverse();
+  return result;
+};
+
+export const calculateWeights = ({nodes, links}) => {
+  const sorted = topologicalSort({nodes, links});
+
+  // Initialize an empty set for each node
+  const ancestorSets = nodes.reduce((lists, node) =>
+    Object.assign(lists, {[node.name]: new Set()}), {});
+
+  const childrenLists = getChildrenLists({nodes, links});
+  for (let node of sorted) {
+    for (let child of childrenLists[node.name]) {
+      ancestorSets[child.name] = new Set([...ancestorSets[child.name], ...ancestorSets[node.name], node]);
+    }
+
+    node.cumWeight = ancestorSets[node.name].size + 1;
+  }
+};

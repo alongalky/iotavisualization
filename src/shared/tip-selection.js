@@ -1,4 +1,4 @@
-import {choose, isTip, randomWalk} from './algorithms';
+import {choose, isTip, randomWalk, weightedRandomWalk, calculateWeights} from './algorithms';
 
 export const uniformRandom = ({nodes, links}) => {
   const candidates = nodes.filter(node => isTip({links, node}));
@@ -16,5 +16,20 @@ export const unWeightedMCMC = ({nodes, links}) => {
   return [
     randomWalk({links, start}),
     randomWalk({links, start}),
+  ];
+};
+
+export const weightedMCMC = ({nodes, links, alpha}) => {
+  if (nodes.length === 0) {
+    return [];
+  }
+
+  const start = nodes[0]; // Start in genesis
+
+  calculateWeights({nodes, links});
+
+  return [
+    weightedRandomWalk({links, start, alpha}),
+    weightedRandomWalk({links, start, alpha}),
   ];
 };

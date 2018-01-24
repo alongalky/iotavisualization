@@ -54,7 +54,7 @@ const rightMargin = 20;
 const bottomMargin = 200;
 
 const nodeCountMin = 1;
-const nodeCountMax = 300;
+const nodeCountMax = 500;
 const nodeCountDefault = 20;
 const lambdaMin = 0.1;
 const lambdaMax = 50;

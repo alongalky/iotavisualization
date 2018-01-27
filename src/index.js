@@ -10,6 +10,15 @@ const store = createStore(reducer);
 render(
   <Provider store={store}>
     <div>
+    <h2>Iota Tangle Visualization</h2>
+        <p>
+          This demo shows the tangle structure behind Iota, as described in
+          the <a href='https://iota.org/IOTA_Whitepaper.pdf'>white paper</a>.
+        </p>
+        <p>
+          The source code can be found on <a href="https://github.com/alongalky/iotavisualization/">github</a>.
+        </p>
+        
       <div style={{display: 'inline-block'}}>
         <TangleContainer />
       </div>
@@ -18,14 +27,7 @@ render(
         paddingLeft: '20px',
         paddingTop: '20px',
         textAlign: 'justify'}}>
-        <h2>Iota Tangle visualization</h2>
-        <p>
-          This demo shows the tangle structure behind Iota, as described in
-          the <a href='https://iota.org/IOTA_Whitepaper.pdf'>white paper</a>.
-        </p>
-        <p>
-          The source code can be found on <a href="https://github.com/alongalky/iotavisualization/">github</a>.
-        </p>
+        
       </div>
     </div>
   </Provider>,

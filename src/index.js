@@ -18,7 +18,6 @@ render(
         <p>
           The source code can be found on <a href="https://github.com/alongalky/iotavisualization/">github</a>.
         </p>
-        
       <div style={{display: 'inline-block'}}>
         <TangleContainer />
       </div>
@@ -27,7 +26,6 @@ render(
         paddingLeft: '20px',
         paddingTop: '20px',
         textAlign: 'justify'}}>
-        
       </div>
     </div>
   </Provider>,
